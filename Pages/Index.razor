@@ -1,0 +1,107 @@
+﻿@page "/"
+@inject HttpClient httClient
+
+<PageTitle>Index</PageTitle>
+
+<style>
+    body{
+        background-color: #22303C;
+    }
+</style>
+
+<div class="heads" >
+    <h2 style="color:#aeb58d">Movie Search Engine</h2>
+<div class="form-outline" data-mdb-input-init>
+    
+<input @bind=searchQuery type="text" id="typeText" placeholder="Search Title..." class="form-control" style="width: 500px; padding: 10px; " />
+<button @onclick=GetData type="button" class="btn btn-warning"><i class="fas fa-search"></i></button>
+
+</div>
+</div>
+
+<h2 style="color:aliceblue">@noResult </h2>
+
+<div class="row">
+@foreach (var movie in movies)
+{
+    <div class="card" style="width: 18rem; margin:50px;">
+        <img src="@movie.Poster" class="card-img-top" alt="@movie.Title">
+        <div class="card-body">
+            <h5 class="card-title">@movie.Title</h5>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Year: @movie.Year</li>
+                    
+                <li class="list-group-item">Type: @movie.Type</li>
+            </ul>
+        </div>
+    </div>
+}
+</div>
+
+@code{
+    private List<Movie> movies = new List<Movie>();
+    public string noResult = "";
+    public string searchQuery = "";
+
+
+    // Method pour appeler API 
+    private async Task GetData()
+    {
+    try
+    {
+        if (string.IsNullOrWhiteSpace(searchQuery))
+        {
+
+            noResult = "Enter a valid Title.";
+            return;
+        }
+
+        var response = await httClient.GetFromJsonAsync<MovieSearchResponse>("https://www.omdbapi.com/?apikey=5628143a&s=" + searchQuery);
+
+        if (response != null)
+        {
+            if (response.Response == "False")
+            {
+
+                noResult = "No results Found";
+
+            }
+            else
+            {
+
+                if (response.Search != null)
+                {
+                    movies = response.Search;
+                    noResult = "";
+                }
+                   
+            }
+        }
+            
+    }
+    catch (Exception ex)
+    {
+            
+        noResult = " error occurred: " + ex.Message;
+    }
+}
+
+
+
+
+    public class MovieSearchResponse
+    {
+        public List<Movie> Search { get; set; }     
+        public string Response { get; set; }
+    }
+
+
+    public class Movie
+    {
+        public string Title { get; set; }
+        public string Year { get; set; }
+        public string Type { get; set; }
+        public string Poster { get; set; }
+
+    }
+}
