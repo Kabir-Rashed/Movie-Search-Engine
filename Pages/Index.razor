@@ -56,7 +56,7 @@
             return;
         }
 
-        var response = await httClient.GetFromJsonAsync<MovieSearchResponse>("https://www.omdbapi.com/?apikey=5628143a&s=" + searchQuery);
+        var response = await httClient.GetFromJsonAsync<MovieSearchResponse>("API KEY + searchQuery);
 
         if (response != null)
         {
